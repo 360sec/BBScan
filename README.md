@@ -1,72 +1,75 @@
-# BBScan #
+# BBScan 2.0 #
 
-**BBScan** is a tiny **B**atch we**B** vulnerability **Scan**ner.
+**BBScan** 是一个高并发、轻量级的信息泄露扫描工具。
 
-## Feathers ##
+它可以在短时间内完成数十万目标的扫描，帮助渗透工程师从大量无标签的主机中，定位到可能存在弱点的目标，进行下一步半自动化测试，或者是开启重量级扫描器。 它可以作为一个轻量级插件，集成到自动化扫描系统中。
 
-* It has a quite small but efficient set of rules
-* It can auto add **Target/mask** network hosts to scanner
-* Quite few false positives
+因为其python插件扫描，跟作者即将释出的工具高度一致。2.0之后的版本，我们将只关注信息泄露扫描。
 
-## Requirements ##
-* Python 2.7.x
-* BeautifulSoup4==4.3.2
-* py2-ipaddress==3.4.1
+**BBScan** is a fast and light weighted information disclosure vulnerabilitiy scanner.
 
-with pip installed, you can install required packages
+Scan thousands of targets can be done in serveral minutes，which can help pentesters filter possible vulnerable hosts from large number of unlabeled targets. It can be integrated as a scan component in other scanner projects.
 
-> pip install -r requirements.txt
+### 安装 Install ###
 
-## Usage ##
+Require python3.6+
 
-	usage: BBScan.py [options]
+	pip3 install -r requirements.txt
 
-	* A tiny Batch weB vulnerability Scanner. By LiJieJie *
+### 使用 Usage
 
-	optional arguments:
-	  -h, --help          show this help message and exit
-	  --host HOST         Scan a single host
-	  -f TargetFile       Load targets from TargetFile
-	  -d TargetDirectory  Load all *.txt files from TargetDirectory
-	  -p PROCESS          Num of processes running concurrently, 10 by default
-	  -t THREADS          Num of scan threads for each scan process, 20 by default
-	  --network MASK      Scan all Target/mask hosts, 
-			      		  should be a int between 24 and 31.
-	  --timeout Timeout   Max scan minutes for each website, 20 by default
-	  --browser           Open web browser to view report after scan was finished.
-	  -v                  show program's version number and exit
+* ##### **从文件导入目标  Import urls from file**
 
-**1. Scan a single host www.target.com** 
+```
+python BBScan.py -f urls.txt
+```
 
-	python BBScan.py  --host www.target.com --browser
+* ##### 指定多个规则  Enable specified rules only
 
-**2. Scan www.target.com and all the other ips in www.target.com/28 networks**
+```
+python BBScan.py --rule git_and_svn -f urls.txt
+```
 
-	python BBScan.py  --host www.target.com --network 28 --browser
+### 参数  Parameters ###
+
+	Targets:
 	
-**3. Load some targets from file**
+	  --host [HOST [HOST ...]]
+	                        Scan several hosts from command line
+	  -f TargetFile         Load new line delimited targets from TargetFile
+	  -d TargetDirectory    Load all *.txt files from TargetDirectory
+	  --crawler CrawlDirectory
+	                        Load all *.log crawl files from CrawlDirectory
+	  --network MASK        Scan all Target/MASK neighbour hosts,
+	                        should be an integer between 8 and 31
 	
-	python BBScan.py -f wandoujia.com.txt
-
-**4. Load all targets from Directory**
-
-	python BBScan.py -d targets/
-
-
-## 说明 ##
-
-	这是一个迷你的批量信息泄漏扫描脚本。规则字典非常小，但是尽量保证准确和可利用。
-
-	--network 参数用于设置子网掩码，小公司设为28~30，中等规模公司设置26~28，大公司设为24~26
-
-	当然，尽量避免设为24，扫描过于耗时，除非是想在各SRC多刷几个漏洞。
-
-	该插件是从内部扫描器中抽离出来的，感谢 Jekkay Hu<34538980[at]qq.com> 
+	HTTP SCAN:
 	
-	如果你有非常有用的规则，请找几个网站验证测试后，再 pull request
+	  --rule [RuleFileName [RuleFileName ...]]
+	                        Import specified rule files only.
+	  -n, --no-crawl        No crawling, sub folders will not be processed
+	  -nn, --no-check404    No HTTP 404 existence check
+	  --full                Process all sub directories
 	
-脚本还会优化，接下来的事:
-
-- 增加有用规则，将规则更好地分类，细化
-- 后续可以直接从 rules\request 文件夹中导入HTTP_request
-- 优化扫描逻辑
+	Scripts SCAN:
+	
+	  --scripts-only        Scan with user scripts only
+	  --script [ScriptName [ScriptName ...]]
+	                        Execute specified scripts only
+	  --no-scripts          Disable all scripts
+	
+	CONCURRENT:
+	
+	  -p PROCESS            Num of processes running concurrently, 30 by default
+	  -t THREADS            Num of scan threads for each scan process, 3 by default
+	
+	OTHER:
+	
+	  --proxy Proxy         Set HTTP proxy server
+	  --timeout Timeout     Max scan minutes for each target, 10 by default
+	  -md                   Save scan report as markdown format
+	  --save-ports PortsDataFile
+	                        Save open ports to PortsDataFile
+	  --debug               Show verbose debug info
+	  -nnn, --no-browser    Do not open web browser to view report
+	  -v                    show program's version number and exit
